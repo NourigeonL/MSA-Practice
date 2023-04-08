@@ -1,10 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from redis_om import get_redis_connection, HashModel, NotFoundError, Migrator, Field
+from fastapi.background import BackgroundTasks
 from starlette.requests import Request
 from typing import Literal
 from enum import Enum
 from pydantic import BaseModel, ValidationError, validator
+import time
 app = FastAPI(docs_url="/api/docs", redoc_url="/api/redoc")
 
 redis = get_redis_connection(host="localhost", port=6379)
@@ -94,18 +96,25 @@ async def get_order_by_id(order_id: str)-> Order:
     return Order.get(order_id)
 
 @app.post("/api/orders/")
-async def create_new_order(order_create: OrderCreate) -> Order:
+async def create_new_order(order_create: OrderCreate, background_tasks: BackgroundTasks) -> Order:
     product: Product = Product.get(order_create.product_id)
-    if product.quantity >= order_create.quantity:
-      status=StatusEnum.COMPLETED
-      product.quantity -= order_create.quantity
-      product.save()
-    else:
-      status=StatusEnum.CANCELLED
-    order = Order(product_id=order_create.product_id, quantity=order_create.quantity, total=order_create.quantity*product.price, status=status)
-
-    return order.save()
+    order = Order(product_id=order_create.product_id, quantity=order_create.quantity, total=order_create.quantity*product.price, status=StatusEnum.PENDING)
+    order.save()
+    background_tasks.add_task(order_completed, order)
+    return order
 
 @app.delete("/api/orders/{order_id}/")
 async def delete_order(order_id: str)-> int:
     return Order.delete(order_id)
+
+def order_completed(order : Order):
+  time.sleep(10)
+  product: Product = Product.get(order.product_id)
+  if product.quantity >= order.quantity:
+    product.quantity -= order.quantity
+    product.save()
+    status=StatusEnum.COMPLETED
+  else:
+    status=StatusEnum.CANCELLED
+  order.status = status
+  order.save()
