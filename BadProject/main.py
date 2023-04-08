@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from redis_om import get_redis_connection, HashModel, NotFoundError, Migrator, Field
 from fastapi.background import BackgroundTasks
@@ -65,8 +65,6 @@ async def get_product_by_id(product_id: str)-> Product:
 async def get_orders_of_a_product(product_id: str)-> list[Order]:
     return Order.find(Order.product_id==product_id).all()
 
-
-
 @app.post("/api/products/")
 async def create_new_product(product: Product)-> Product:
     return product.save()
@@ -76,16 +74,22 @@ async def delete_product(product_id: str)-> int:
     return Product.delete(product_id)
 
 @app.post("/api/products/{product_id}/add-quantity/{quantity}")
-async def change_product_quantity(product_id: str, quantity : int)-> Product:
+async def change_product_quantity(product_id: str, quantity : int, response: Response)-> Product:
     product : Product= Product.get(product_id)
+    if quantity <= 0:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return product
     product.quantity += quantity
     return product.save()
 
 @app.post("/api/products/{product_id}/remove-quantity/{quantity}")
-async def change_product_quantity(product_id: str, quantity : int)-> Product:
+async def change_product_quantity(product_id: str, quantity : int, response: Response)-> Product:
     product : Product= Product.get(product_id)
-    product.quantity -= quantity
-    return product.save()
+    if quantity <= product.quantity:
+      product.quantity -= quantity
+      return product.save()
+    response.status_code = status.HTTP_400_BAD_REQUEST
+    return product
 
 @app.get("/api/orders/")
 async def get_all_orders()-> list[Order]:
