@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from redis_om import get_redis_connection, HashModel
+from redis_om import get_redis_connection, HashModel, NotFoundError, Migrator, Field
 from starlette.requests import Request
 from typing import Literal
 from enum import Enum
@@ -31,7 +31,7 @@ class StatusEnum(str, Enum):
     CANCELLED = 'cancelled'
 
 class Order(HashModel):
-    product_id: str
+    product_id: str = Field(index=True)
     quantity: int
     total: float = 0
     status: StatusEnum
@@ -45,6 +45,8 @@ class OrderCreate(BaseModel):
     product_id: str
     quantity : int
 
+Migrator().run()
+
 @app.get("/api/")
 async def read_root():
     return {"Hello": "World"}
@@ -56,6 +58,12 @@ async def get_all_products()-> list[Product]:
 @app.get("/api/products/{product_id}/")
 async def get_product_by_id(product_id: str)-> Product:
     return Product.get(product_id)
+
+@app.get("/api/products/{product_id}/orders/")
+async def get_orders_of_a_product(product_id: str)-> list[Order]:
+    return Order.find(Order.product_id==product_id).all()
+
+
 
 @app.post("/api/products/")
 async def create_new_product(product: Product)-> Product:
@@ -86,7 +94,7 @@ async def get_order_by_id(order_id: str)-> Order:
     return Order.get(order_id)
 
 @app.post("/api/orders/")
-async def create_new_order(order_create: OrderCreate):
+async def create_new_order(order_create: OrderCreate) -> Order:
     product: Product = Product.get(order_create.product_id)
     if product.quantity >= order_create.quantity:
       status=StatusEnum.COMPLETED
