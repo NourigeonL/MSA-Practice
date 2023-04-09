@@ -5,5 +5,5 @@ class MemRepo(IProductRepository):
   def __init__(self, data : list[dict[str, any]]) -> None:
     self.data = data
 
-  def list(self) -> list[Product]:
+  def get_products(self) -> list[Product]:
     return [Product.parse_obj(product) for product in self.data]

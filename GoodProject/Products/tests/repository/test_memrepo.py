@@ -36,4 +36,4 @@ def product_dicts():
 def test_repository_list_without_parameters(product_dicts):
   repo = MemRepo(product_dicts)
   products = [Product.parse_obj(product_dict) for product_dict in product_dicts]
-  assert repo.list() == products
+  assert repo.get_products() == products

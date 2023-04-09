@@ -8,4 +8,4 @@ router = APIRouter()
 
 @router.get("/products")
 def product_list(service: Annotated[ProductService, Depends(get_product_service)])->list[Product]:
-  return service.list_products()
+  return service.get_products()

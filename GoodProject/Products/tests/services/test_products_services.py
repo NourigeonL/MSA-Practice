@@ -4,7 +4,6 @@ from unittest import mock
 
 from src.domain.product import Product
 from src.services.products import ProductService
-from src.interfaces.product_repository import IProductRepository
 
 @pytest.fixture
 def domain_products():
@@ -38,9 +37,9 @@ def domain_products():
 def test_product_list_without_parameters(domain_products):
   repo = mock.Mock()
   product_service = ProductService(repo)
-  repo.list.return_value = domain_products
+  repo.get_products.return_value = domain_products
 
-  result = product_service.list_products()
+  result = product_service.get_products()
 
-  repo.list.assert_called_with()
+  repo.get_products.assert_called_with()
   assert result == domain_products

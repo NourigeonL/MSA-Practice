@@ -5,5 +5,5 @@ class ProductService():
   def __init__(self, repo: IProductRepository) -> None:
     self._repo = repo
 
-  def list_products(self) -> list[Product]:
-    return self._repo.list()
+  def get_products(self) -> list[Product]:
+    return self._repo.get_products()

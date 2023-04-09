@@ -18,7 +18,7 @@ class ProductRoute(unittest.TestCase):
     async def override_dependency(self):
         return self.service
 
-    def test_get(self):
+    def test_list_products(self):
         product_dict = {
         "code": str(uuid.uuid4()),
         "name": "Product1",
@@ -28,13 +28,13 @@ class ProductRoute(unittest.TestCase):
 
         products = [Product.parse_obj(product_dict)]
 
-        self.service.list_products.return_value = products
+        self.service.get_products.return_value = products
 
 
         response = self.client.get("/products")
         print(response.json())
 
-        self.service.list_products.assert_called()
+        self.service.get_products.assert_called()
 
         assert response.status_code == 200
         assert response.json() == [product_dict]

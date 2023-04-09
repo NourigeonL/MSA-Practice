@@ -8,5 +8,5 @@ class IProductRepository(metaclass=abc.ABCMeta):
 #         raise NotImplementedError
 
   @abc.abstractmethod
-  def list(self) -> list[Product]:
+  def get_products(self) -> list[Product]:
         raise NotImplementedError
