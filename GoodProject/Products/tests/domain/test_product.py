@@ -6,7 +6,7 @@ import unittest
 class ProductTest(unittest.TestCase):
 
   def test_product_model_init(self):
-    code = uuid.uuid4()
+    code = str(uuid.uuid4())
     product = Product(code=code, name= "Product 1", price=10.0, quantity=50)
     assert product.code == code
     assert product.quantity == 50
@@ -14,7 +14,7 @@ class ProductTest(unittest.TestCase):
     assert product.name == "Product 1"
 
   def test_product_model_from_dict(self):
-    code = uuid.uuid4()
+    code = str(uuid.uuid4())
     init_dict = {
       "code": code,
       "name": "Product 2",
@@ -29,7 +29,7 @@ class ProductTest(unittest.TestCase):
 
   def test_product_model_to_dict(self):
     init_dict = {
-      "code": uuid.uuid4(),
+      "code": str(uuid.uuid4()),
       "name": "Product 3",
       "price": 2.35,
       "quantity": 10
@@ -40,7 +40,7 @@ class ProductTest(unittest.TestCase):
 
   def test_product_model_comparaison(self):
     init_dict = {
-      "code": uuid.uuid4(),
+      "code": str(uuid.uuid4()),
       "name": "Product 3",
       "price": 2.35,
       "quantity": 10

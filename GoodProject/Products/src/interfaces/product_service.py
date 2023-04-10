@@ -1,5 +1,5 @@
 import abc
-from src.domain.product import Product
+from src.domain.product import Product, ProductCreate
 
 class IProductService(metaclass=abc.ABCMeta):
 
@@ -8,5 +8,9 @@ class IProductService(metaclass=abc.ABCMeta):
     raise NotImplementedError
 
   @abc.abstractmethod
-  def get_product(self) -> Product:
+  def get_product(self, code: str) -> Product:
+    raise NotImplementedError
+
+  @abc.abstractmethod
+  def create_product(self, product_create : ProductCreate) -> Product:
     raise NotImplementedError
