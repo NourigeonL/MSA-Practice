@@ -1,8 +1,9 @@
 import pytest
 import uuid
+import unittest
 
 from src.domain.product import Product
-from src.repository.memrepo import MemRepo
+from src.repositories.memrepo import MemRepo
 
 @pytest.fixture
 def product_dicts():

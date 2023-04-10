@@ -1,9 +1,7 @@
 from .interfaces.product_repository import IProductRepository
-from .repository.memrepo import MemRepo
-from typing import Annotated, AsyncGenerator
-from fastapi import Depends
-from contextlib import asynccontextmanager
+from .repositories.memrepo import MemRepo
 from .services.products import ProductService
+from .interfaces.product_service import IProductService
 
 db = []
 
@@ -14,5 +12,5 @@ def get_product_repository() -> IProductRepository:
 
 product_service = ProductService(product_repository)
 
-def get_product_service() -> ProductService:
+def get_product_service() -> IProductService:
   return product_service

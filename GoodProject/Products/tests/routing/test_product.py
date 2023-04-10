@@ -2,10 +2,8 @@ import pytest
 import unittest
 from unittest import mock
 from fastapi.testclient import TestClient
-from src.services.products import ProductService
 import uuid
-import json
-from src.main import app
+from src.app import app
 from src.domain.product import Product
 from src.dependencies import get_product_service
 
@@ -38,3 +36,11 @@ class ProductRoute(unittest.TestCase):
 
         assert response.status_code == 200
         assert response.json() == [product_dict]
+
+    def test_return_not_found_when_get_product_not_found(self):
+
+        self.service.get_product.return_value = None
+        code = str(uuid.uuid4)
+        response = self.client.get("/products/{code}")
+        self.service.get_product.assert_called_with(code)
+        assert response.status_code == 404
