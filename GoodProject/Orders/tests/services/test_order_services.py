@@ -6,10 +6,11 @@ from src.services.orders_services import OrdersServices
 from src.domain.orders import Order, OrderStatus, OrderCreate
 from src.domain.id import ID
 from src.exceptions.exceptions import OrderDoesNotExistException
+from src.interfaces.services import IOrdersServices
 class OrderServiceTest(unittest.TestCase):
   def setUp(self) -> None:
     self.repo = mock.Mock()
-    self.service = OrdersServices(self.repo)
+    self.service : IOrdersServices = OrdersServices(self.repo)
 
   def test_should_return_list(self):
     self.repo.get_orders.return_value = []
@@ -25,7 +26,7 @@ class OrderServiceTest(unittest.TestCase):
 
   def test_should_raise_order_does_not_exist_error(self):
     code = ID(45)
-    self.repo.get_order.side_effect = OrderDoesNotExistException(code=code)
+    self.repo.get_order.return_value = None
     with pytest.raises(OrderDoesNotExistException):
       self.service.get_order(code)
 
@@ -35,3 +36,38 @@ class OrderServiceTest(unittest.TestCase):
     self.repo.get_order.return_value = expected
     order = self.service.get_order(code)
     assert order == expected
+
+  def test_should_return_empty_list_when_product_does_not_exist(self):
+    product_code = ID(45)
+    self.repo.get_orders.return_value = []
+    result = self.service.get_orders_of_product(product_code)
+    self.repo.get_orders.assert_called_with(filters=[{"product_eq": product_code}])
+    assert result == []
+
+  def test_should_return_list_of_orders_of_a_product(self):
+    product_code = ID(20)
+    order2 = Order(code=ID(2), product=product_code, quantity=20, total=20.0, status=OrderStatus.PENDING)
+    order1 = Order(code=ID(1), product=product_code, quantity=10, total=10.0, status=OrderStatus.PENDING)
+    self.repo.get_orders.return_value = [order1, order2]
+    result = self.service.get_orders_of_product(product_code)
+    self.repo.get_orders.assert_called_with(filters=[{"product_eq": product_code}])
+    assert order1 in result
+    assert order2 in result
+
+  def test_should_create_order(self):
+    product_code = ID(uuid.uuid4())
+    order_create = OrderCreate(product=product_code, quantity=50, total=12.23)
+    expected = Order(code=ID(2), product = product_code, quantity=50, total=12.23, status=OrderStatus.PENDING)
+    self.repo.add_order.return_value = expected
+    order = self.service.create_order(order_create)
+    self.repo.add_order.assert_called()
+    self.repo.save_changes.assert_called()
+    assert order.code is not None
+    assert order.status == OrderStatus.PENDING
+
+  def test_should_change_order_status_to_cancelled(self):
+    order = Order(code=ID(2), product = ID(uuid.uuid4()), quantity=50, total=12.23, status=OrderStatus.PENDING)
+    self.service.verify_order(order)
+    self.repo.update_order.assert_called()
+    self.repo.save_changes.assert_called()
+    assert order.status == OrderStatus.CANCELLED

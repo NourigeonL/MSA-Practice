@@ -5,6 +5,7 @@ from .id import ID
 
 class OrderStatus(Enum):
   PENDING = 0
+  CANCELLED = -1
 
 class Order(BaseModel):
   code: ID
@@ -12,3 +13,8 @@ class Order(BaseModel):
   quantity: int
   total: float
   status : OrderStatus
+
+class OrderCreate(BaseModel):
+  product: ID
+  quantity: int
+  total: float

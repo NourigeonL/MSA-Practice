@@ -6,4 +6,6 @@ class OrderDoesNotExistException(Exception):
     self.msg = f"The order {code.to_string()} does not exist"
 
 class ProductDoesNotExistException(Exception):
-  pass
+  def __init__(self, *args: object, code: ID) -> None:
+    self.product_code = code
+    self.msg = f"The product {code.to_string()} does not exist"
