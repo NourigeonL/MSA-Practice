@@ -1,5 +1,6 @@
 from .interfaces.repositories import IOrderRepository
 from .services.orders_services import OrdersServices
+from .repositories.memrepo import OrderMemRepo
 from .interfaces.services import IOrdersServices
 from typing import Annotated
 from fastapi import Depends
@@ -7,7 +8,7 @@ from fastapi import Depends
 
 def get_config():
   db = []
-  order_repository : IOrderRepository| None = None
+  order_repository : IOrderRepository = OrderMemRepo(db)
   order_service : IOrdersServices = OrdersServices(order_repository)
   return db, order_repository,order_service
 

@@ -34,3 +34,23 @@ docker run -d -p 6379:6379 redislabs/redismod
 pip install fastapi "uvicorn[standard]" redis_om
 uvicorn main:app --reload
 ```
+
+## Good Project installation
+
+Requires python 3.10
+
+### Terminal 1 : Product Service
+
+```bash
+# From GoodProject/Products
+pip install -r ./requirements/prod.txt
+uvicorn src.app:app --reload --port=8001
+```
+
+### Terminal 2 : Order Service
+
+```bash
+# From GoodProject/Orders
+pip install -r ./requirements/prod.txt
+uvicorn src.app:app --reload --port=8002
+```

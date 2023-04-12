@@ -3,9 +3,10 @@ from pydantic import BaseModel
 from enum import Enum
 from .id import ID
 
-class OrderStatus(Enum):
-  PENDING = 0
-  CANCELLED = -1
+class OrderStatus(str, Enum):
+  PENDING = "pending"
+  CANCELLED = "cancelled"
+  COMPLETED = "completed"
 
 class Order(BaseModel):
   code: ID
@@ -13,6 +14,9 @@ class Order(BaseModel):
   quantity: int
   total: float
   status : OrderStatus
+
+  class Config:
+        use_enum_values = True
 
 class OrderCreate(BaseModel):
   product: ID

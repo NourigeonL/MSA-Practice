@@ -3,11 +3,11 @@ from src.domain.product import Product, ProductCreate
 import uuid
 from src.exceptions.exceptions import ProductDoesNotExistException
 class MemRepo(IProductRepository):
-  def __init__(self, data : list[dict[str, any]]) -> None:
+  def __init__(self, data : list[Product]) -> None:
     self.data = data
 
   def get_products(self) -> list[Product]:
-    return [Product.parse_obj(product) for product in self.data]
+    return self.data
 
   def get_product(self, code: str) -> Product:
     for product in self.get_products():
@@ -16,5 +16,5 @@ class MemRepo(IProductRepository):
     raise ProductDoesNotExistException(code=code)
 
   def create_product(self, product: Product) -> Product:
-    self.data.append(product.dict())
-    return Product.parse_obj(product.dict())
+    self.data.append(product)
+    return product

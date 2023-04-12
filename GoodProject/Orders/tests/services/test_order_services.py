@@ -39,18 +39,18 @@ class OrderServiceTest(unittest.TestCase):
 
   def test_should_return_empty_list_when_product_does_not_exist(self):
     product_code = ID(45)
-    self.repo.get_orders.return_value = []
+    self.repo.get_orders_of_product.return_value = []
     result = self.service.get_orders_of_product(product_code)
-    self.repo.get_orders.assert_called_with(filters=[{"product_eq": product_code}])
+    self.repo.get_orders_of_product.assert_called_with(product_code)
     assert result == []
 
   def test_should_return_list_of_orders_of_a_product(self):
     product_code = ID(20)
     order2 = Order(code=ID(2), product=product_code, quantity=20, total=20.0, status=OrderStatus.PENDING)
     order1 = Order(code=ID(1), product=product_code, quantity=10, total=10.0, status=OrderStatus.PENDING)
-    self.repo.get_orders.return_value = [order1, order2]
+    self.repo.get_orders_of_product.return_value = [order1, order2]
     result = self.service.get_orders_of_product(product_code)
-    self.repo.get_orders.assert_called_with(filters=[{"product_eq": product_code}])
+    self.repo.get_orders_of_product.assert_called_with(product_code)
     assert order1 in result
     assert order2 in result
 
@@ -61,13 +61,10 @@ class OrderServiceTest(unittest.TestCase):
     self.repo.add_order.return_value = expected
     order = self.service.create_order(order_create)
     self.repo.add_order.assert_called()
-    self.repo.save_changes.assert_called()
     assert order.code is not None
     assert order.status == OrderStatus.PENDING
 
   def test_should_change_order_status_to_cancelled(self):
     order = Order(code=ID(2), product = ID(uuid.uuid4()), quantity=50, total=12.23, status=OrderStatus.PENDING)
     self.service.verify_order(order)
-    self.repo.update_order.assert_called()
-    self.repo.save_changes.assert_called()
     assert order.status == OrderStatus.CANCELLED

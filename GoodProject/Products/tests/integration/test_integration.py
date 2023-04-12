@@ -35,7 +35,7 @@ class IntegrationTest(unittest.TestCase):
     code2 = str(uuid.uuid4())
     product1 = Product(code=code1, name="Product1", quantity=50, price=2.68)
     product2 = Product(code=code2, name="Product2", quantity=30, price=2.28)
-    self.db.extend([product1.dict(), product2.dict()])
+    self.db.extend([product1, product2])
     response = self.client.get(f"/products/{code2}")
     assert response.status_code == 200
     assert response.json() == product2.dict()

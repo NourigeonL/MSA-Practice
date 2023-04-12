@@ -17,3 +17,13 @@ class ProductService(IProductService):
     product_dict["code"] = str(uuid.uuid4())
     product = Product.parse_obj(product_dict)
     return self._repo.create_product(product)
+
+  def decrease_product_quantity(self, code: str, quantity_to_decrease: int) -> int:
+    try:
+      product = self.get_product(code)
+      if quantity_to_decrease > product.quantity:
+        return 0
+      product.quantity -= quantity_to_decrease
+      return quantity_to_decrease
+    except Exception:
+      return 0

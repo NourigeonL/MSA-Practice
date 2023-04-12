@@ -14,3 +14,7 @@ class IProductService(metaclass=abc.ABCMeta):
   @abc.abstractmethod
   def create_product(self, product_create : ProductCreate) -> Product:
     raise NotImplementedError
+
+  @abc.abstractmethod
+  def decrease_product_quantity(self, code: str, quantity_to_decrease: int) -> int:
+    raise NotImplementedError

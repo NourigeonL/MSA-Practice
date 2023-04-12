@@ -18,16 +18,16 @@ class OrdersServices(IOrdersServices):
     return order
 
   def get_orders_of_product(self, product_code: ID) -> list[Order]:
-    return self._repo.get_orders(filters=[{"product_eq":product_code}])
+    return self._repo.get_orders_of_product(product_code)
 
   def create_order(self, order_create : OrderCreate) -> Order:
     code = ID(uuid.uuid4())
     order = Order(code=code, product=order_create.product, quantity=order_create.quantity, total=order_create.total, status=OrderStatus.PENDING)
     self._repo.add_order(order)
-    self._repo.save_changes()
     return order
 
-  def verify_order(self, order : Order) -> None:
-    order.status = OrderStatus.CANCELLED
-    self._repo.update_order(order)
-    self._repo.save_changes()
+  def verify_order(self, order : Order, quantity : int) -> None:
+    print(order, quantity)
+    new_order = self.get_order(order.code)
+    new_order.status = OrderStatus.COMPLETED if order.quantity == quantity else OrderStatus.CANCELLED
+    print(new_order)

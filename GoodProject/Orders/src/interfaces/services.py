@@ -21,5 +21,5 @@ class IOrdersServices(metaclass=abc.ABCMeta):
     raise NotImplementedError
 
   @abc.abstractmethod
-  def verify_order(self, order : Order) -> None:
+  def verify_order(self, order : Order, quantity : int) -> None:
     raise NotImplementedError

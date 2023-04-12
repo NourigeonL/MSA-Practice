@@ -24,3 +24,7 @@ def product_get_by_code(code: str, service: ServiceDep, response: Response) -> P
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create_product(product_create : ProductCreate, service: ServiceDep)-> Product:
   return service.create_product(product_create)
+
+@router.post("/{code}/remove-quantity/{quantity}")
+def decrease_product_quantity(code : str, quantity : int, service: ServiceDep)-> int:
+  return service.decrease_product_quantity(code, quantity)
